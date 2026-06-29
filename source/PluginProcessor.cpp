@@ -130,7 +130,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     }
-}
+
 
 //==============================================================================
 bool PluginProcessor::hasEditor() const
@@ -163,5 +163,5 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new PamplejuceAudioProcessorEditor();
+    return new PamplejuceAudioProcessor();
 }
