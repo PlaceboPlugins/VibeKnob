@@ -1,7 +1,9 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "PluginProcessor.h"
+
+// This tells the compiler "Hey, this class exists, don't panic!"
+class PamplejuceAudioProcessor; 
 
 class PamplejuceAudioProcessorEditor  : public juce::AudioProcessorEditor,
                                         public juce::Slider::Listener
