@@ -6,11 +6,11 @@
 #include "ipps.h"
 #endif
 
-class PluginProcessor : public juce::AudioProcessor
+class PamplejuceAudioProcessor : public juce::AudioProcessor
 {
 public:
-    PluginProcessor();
-    ~PluginProcessor() override;
+    PamplejuceAudioProcessor();
+    ~PamplejuceAudioProcessor() override;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
