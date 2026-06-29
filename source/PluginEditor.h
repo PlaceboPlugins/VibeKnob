@@ -7,7 +7,7 @@ class PamplejuceAudioProcessorEditor  : public juce::AudioProcessorEditor,
                                         public juce::Slider::Listener
 {
 public:
-    explicit PamplejuceAudioProcessorEditor (PluginProcessor&);
+    explicit PamplejuceAudioProcessorEditor (PamplejuceAudioProcessor&);
     ~PamplejuceAudioProcessorEditor() override;
 
     void paint (juce::Graphics&) override;
@@ -20,7 +20,7 @@ private:
     juce::Label statusLabel;
     float currentVibeValue = 0.0f;
 
-    PluginProcessor& processorRef;
+    PamplejuceAudioProcessor& processorRef;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PamplejuceAudioProcessorEditor)
 };
