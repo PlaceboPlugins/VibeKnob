@@ -17,7 +17,7 @@ include(JUCEDefaults)
 # This is the internal name of the project and the name of JUCE's shared code target
 # Note: This cannot have spaces (it may be 2024, but you can't have it all!)
 # Worry not, JUCE's PRODUCT_NAME can have spaces (and is what DAWs display)
-set(PROJECT_NAME "The Vibe Knob")
+set(PROJECT_NAME "TheVibeKnob")
 
 # Worry not, JUCE's PRODUCT_NAME can have spaces (and is what DAWs will display)
 # You can also just have it be the same thing as PROJECT_NAME
@@ -31,7 +31,7 @@ set(PRODUCT_NAME "The Vibe Knob")
 set(COMPANY_NAME "Placebo Plugins")
 
 # Change me! Used for the MacOS bundle identifier (and signing)
-set(BUNDLE_ID "com.placeboplugins")
+set(BUNDLE_ID "com.placeboplugins.vibeknob")
 
 # Change me! Set the plugin formats you want built
 # Valid choices: AAX Unity VST VST3 AU AUv3 Standalone
