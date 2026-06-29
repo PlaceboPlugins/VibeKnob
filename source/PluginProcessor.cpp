@@ -163,5 +163,5 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new PluginProcessor();
+    return new PamplejuceAudioProcessorEditor();
 }
