@@ -138,9 +138,9 @@ bool PluginProcessor::hasEditor() const
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* PluginProcessor::createEditor()
+juce::AudioProcessorEditor* PamplejuceAudioProcessor::createEditor()
 {
-    return new PluginEditor (*this);
+    return new PamplejuceAudioProcessorEditor (*this);
 }
 
 //==============================================================================
