@@ -1,25 +1,26 @@
 #pragma once
 
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
-#include "BinaryData.h"
-#include "melatonin_inspector/melatonin_inspector.h"
 
-//==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor
+class PamplejuceAudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                        public juce::Slider::Listener
 {
 public:
-    explicit PluginEditor (PluginProcessor&);
-    ~PluginEditor() override;
+    explicit PamplejuceAudioProcessorEditor (PamplejuceAudioProcessor&);
+    ~PamplejuceAudioProcessorEditor() override;
 
-    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void sliderValueChanged (juce::Slider* slider) override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    PluginProcessor& processorRef;
-    std::unique_ptr<melatonin::Inspector> inspector;
-    juce::TextButton inspectButton { "Inspect the UI" };
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
+    juce::Slider vibeKnob;
+    juce::Label titleLabel;
+    juce::Label statusLabel;
+    float currentVibeValue = 0.0f;
+
+    PamplejuceAudioProcessor& processorRef;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PamplejuceAudioProcessorEditor)
 };
