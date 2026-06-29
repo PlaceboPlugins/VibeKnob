@@ -1,48 +1,77 @@
+#include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-PluginEditor::PluginEditor (PluginProcessor& p)
+PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
 {
-    juce::ignoreUnused (processorRef);
+    // Setup the Giant Vibe Knob
+    vibeKnob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    vibeKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    vibeKnob.setRange(0.0, 100.0, 1.0);
+    vibeKnob.setValue(0.0);
+    vibeKnob.addListener(this);
+    addAndMakeVisible(vibeKnob);
 
-    addAndMakeVisible (inspectButton);
+    // Setup Main Title Text
+    titleLabel.setText("THE VIBE KNOB", juce::dontSendNotification);
+    titleLabel.setFont(juce::FontOptions(22.0f, juce::Font::bold));
+    titleLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(titleLabel);
 
-    // this chunk of code instantiates and opens the melatonin inspector
-    inspectButton.onClick = [&] {
-        if (!inspector)
-        {
-            inspector = std::make_unique<melatonin::Inspector> (*this);
-            inspector->onClose = [this]() { inspector.reset(); };
-        }
+    // Setup the Producer Psychology Subtext
+    statusLabel.setText("\"It's missing something...\"", juce::dontSendNotification);
+    statusLabel.setFont(juce::FontOptions(13.0f, juce::Font::italic));
+    statusLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(statusLabel);
 
-        inspector->setVisible (true);
-    };
-
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    // Initial Plugin Window Size
+    setSize (320, 420);
 }
 
-PluginEditor::~PluginEditor()
+PamplejuceAudioProcessorEditor::~PamplejuceAudioProcessorEditor() {}
+
+void PamplejuceAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
+    if (slider == &vibeKnob)
+    {
+        currentVibeValue = (float)vibeKnob.getValue() / 100.0f;
+        
+        // Update client quotes based on knob value
+        if (vibeKnob.getValue() <= 1.0) statusLabel.setText("\"It's missing something...\"", juce::dontSendNotification);
+        else if (vibeKnob.getValue() <= 25.0) statusLabel.setText("\"Yeah, I think it's opening up...\"", juce::dontSendNotification);
+        else if (vibeKnob.getValue() <= 50.0) statusLabel.setText("\"Wow, the analog warmth is coming in!\"", juce::dontSendNotification);
+        else if (vibeKnob.getValue() <= 75.0) statusLabel.setText("\"The mid-range feels way more transparent!\"", juce::dontSendNotification);
+        else if (vibeKnob.getValue() < 100.0) statusLabel.setText("\"YES! This is a hit! Don't touch a thing!\"", juce::dontSendNotification);
+        else statusLabel.setText("\"MAXIMUM VIBE ACHIEVED 🌈✨\"", juce::dontSendNotification);
+
+        repaint(); // Tells the plugin window to redraw its colors
+    }
 }
 
-void PluginEditor::paint (juce::Graphics& g)
+void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    // C++ Math for changing colors dynamically!
+    // Shifts background color from studio gray to saturated psychedelic pink/purple
+    float hue = 0.55f + (currentVibeValue * 0.35f); 
+    float saturation = currentVibeValue;          
+    float brightness = 0.15f + (currentVibeValue * 0.55f); 
 
-    auto area = getLocalBounds();
-    g.setColour (juce::Colours::white);
-    g.setFont (16.0f);
-    auto helloWorld = juce::String ("Hello from ") + PRODUCT_NAME_WITHOUT_VERSION + " v" VERSION + " running in " + CMAKE_BUILD_TYPE;
-    g.drawText (helloWorld, area.removeFromTop (150), juce::Justification::centred, false);
+    juce::Colour backgroundColor = (currentVibeValue == 0.0f) 
+        ? juce::Colour::fromRGB(44, 44, 44) 
+        : juce::Colour::fromHSV(hue, saturation, brightness, 1.0f);
+
+    g.fillAll(backgroundColor);
+    
+    // Change text colors so they look crisp against bright backgrounds
+    juce::Colour textColour = (currentVibeValue > 0.5f) ? juce::Colours::black : juce::Colours::white;
+    titleLabel.setColour(juce::Label::textColourId, textColour);
+    statusLabel.setColour(juce::Label::textColourId, textColour.withAlpha(0.7f));
 }
 
-void PluginEditor::resized()
+void PamplejuceAudioProcessorEditor::resized()
 {
-    // layout the positions of your child components here
-    auto area = getLocalBounds();
-    area.removeFromBottom(50);
-    inspectButton.setBounds (getLocalBounds().withSizeKeepingCentre(100, 50));
+    // Position everything beautifully inside our fixed bounds
+    titleLabel.setBounds(0, 30, getWidth(), 30);
+    vibeKnob.setBounds(getWidth() / 2 - 90, getHeight() / 2 - 90, 180, 180);
+    statusLabel.setBounds(10, getHeight() - 60, getWidth() - 20, 40);
 }
