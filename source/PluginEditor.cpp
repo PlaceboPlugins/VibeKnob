@@ -201,7 +201,7 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 
     // 🎯 NEW: Center Hub Circle - Draw a solid black circle behind the percentage!
     // We use the vibeDisplayLabel's center and make the circle slightly larger than the text.
-    auto hubArea = vibeDisplayLabel.getBounds().toFloat().withSizeKeepingCentre (75.0f, 75.0f);
+    auto hubArea = vibeDisplayLabel.getBounds().toFloat().withSizeKeepingCentre (95.0f, 95.0f);
     g.fillEllipse (hubArea);
     
     // Bottom Quote Strip
