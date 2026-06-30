@@ -13,6 +13,7 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     vibeKnob.onValueChange = [this]() {
         currentVibeValue = static_cast<float>(vibeKnob.getValue());
         statusLabel.setText("Vibe Level: " + juce::String(currentVibeValue), juce::dontSendNotification);
+        repaint();
     };
 
     // Configure the Title Label
@@ -36,7 +37,59 @@ PamplejuceAudioProcessorEditor::~PamplejuceAudioProcessorEditor()
 
 void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::darkgrey);
+    auto bounds = getLocalBounds().toFloat();
+
+    // 1. Calculate our knob saturation factor (0.0 to 1.0)
+    float saturation = currentVibeValue / 100.0f;
+    saturation = juce::jlimit (0.0f, 1.0f, saturation);
+
+    // 2. Load our background image from the baked Binary Data
+    static auto cachedImage = juce::ImageCache::getFromMemory (BinaryData::background_jpg, BinaryData::background_jpgSize);
+
+    if (cachedImage.isValid())
+    {
+        // Draw the full neon-color version of your background image
+        g.drawImageWithin (cachedImage, 0, 0, getWidth(), getHeight(), 
+                           juce::RectanglePlacement::fillDestination);
+
+        // 3. Create the 0% saturation overlay trick!
+        // If vibe is less than 100%, blend a grayscale overlay on top
+        if (saturation < 1.0f)
+        {
+            // Create a temporary black & white snapshot copy of your image
+            auto grayscaleImage = cachedImage.createCopy();
+            grayscaleImage.desaturate();
+
+            // The overlay transparency is inverse to the knob position
+            // (e.g., 0% knob = 1.0 opacity grayscale overlay, 100% knob = 0.0 opacity overlay)
+            float grayscaleOpacity = 1.0f - saturation;
+
+            g.setOpacity (grayscaleOpacity);
+            g.drawImageWithin (grayscaleImage, 0, 0, getWidth(), getHeight(), 
+                               juce::RectanglePlacement::fillDestination);
+            
+            // Reset opacity back to normal for other text/elements
+            g.setOpacity (1.0f);
+        }
+    }
+    else
+    {
+        // Fallback safety color if the image fails to load for any reason
+        g.fillAll (juce::Colours::darkgrey);
+    }
+
+    // 4. Draw a futuristic neon ring that glows brighter as vibe increases
+    auto center = bounds.getCentre();
+    float ringRadius = 90.0f;
+    g.setColour (juce::Colour (0xFF00F5FF).withAlpha (0.1f + (saturation * 0.5f))); 
+    g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 3.0f);
+
+    // 5. Drop our custom italic watermark text at the bottom
+    g.setColour (juce::Colours::white.withAlpha (0.2f + (saturation * 0.8f)));
+    g.setFont (juce::FontOptions (15.0f, juce::Font::bold | juce::Font::italic));
+    g.drawText ("\"Unicorn power levels are optimal.\" 🦄✨", 
+                0, getHeight() - 30, getWidth(), 25, 
+                juce::Justification::centred);
 }
 
 void PamplejuceAudioProcessorEditor::resized()
