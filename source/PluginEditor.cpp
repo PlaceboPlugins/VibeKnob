@@ -46,14 +46,14 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
 
     // Configure the Vibe Percentage Label (Top Row)
     vibeDisplayLabel.setText("0%", juce::dontSendNotification); 
-    vibeDisplayLabel.setFont(juce::FontOptions("Futura", 16.0f, juce::Font::bold)); 
+    vibeDisplayLabel.setFont(juce::FontOptions("Futura", 35.0f, juce::Font::bold)); 
     vibeDisplayLabel.setColour(juce::Label::textColourId, juce::Colours::cyan); 
     vibeDisplayLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(vibeDisplayLabel);
 
     // Configure the Dynamic Quote Label (Bottom Row)
     quoteLabel.setText("\"It's missing something...\"", juce::dontSendNotification); 
-    quoteLabel.setFont(juce::FontOptions("Futura", 12.0f, juce::Font::italic)); 
+    quoteLabel.setFont(juce::FontOptions("Futura", 15.0f, juce::Font::italic)); 
     quoteLabel.setColour(juce::Label::textColourId, juce::Colours::cyan.withAlpha(0.8f)); 
     quoteLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(quoteLabel);
@@ -210,8 +210,8 @@ void PamplejuceAudioProcessorEditor::resized()
     vibeKnob.setBounds (knobBounds);
     
     // 🎯 Center the percentage label directly inside the middle of the knob!
-    vibeDisplayLabel.setBounds (knobBounds.withSizeKeepingCentre (80, 25));
+    vibeDisplayLabel.setBounds (knobBounds.withSizeKeepingCentre (120, 50));
     
     // Keep the dynamic quote tape at the very bottom
-    quoteLabel.setBounds(0, getHeight() - 35, getWidth(), 20);
+    quoteLabel.setBounds(0, getHeight() - 38, getWidth(), 26);
 }
