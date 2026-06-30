@@ -69,11 +69,14 @@ void PamplejuceAudioProcessorEditor::timerCallback()
         Particle p;
         p.x = random.nextFloat() * static_cast<float>(getWidth());
         p.y = static_cast<float>(getHeight()) + 20.0f; // Start just below bottom edge
-        p.speedX = random.nextFloatRange (-1.5f, 1.5f);
-        p.speedY = random.nextFloatRange (-4.0f, -1.0f) * (1.0f + vibeFactor); // Fly faster at high vibe!
-        p.scale = random.nextFloatRange (0.4f, 1.0f);
+        
+        // Manual range math implementation: min + (random.nextFloat() * (max - min))
+        p.speedX = -1.5f + (random.nextFloat() * 3.0f); // Range -1.5f to 1.5f
+        p.speedY = (-4.0f + (random.nextFloat() * 3.0f)) * (1.0f + vibeFactor); // Range -4.0f to -1.0f, scaled by vibe
+        p.scale = 0.4f + (random.nextFloat() * 0.6f); // Range 0.4f to 1.0f
+        
         p.rotation = random.nextFloat() * juce::MathConstants<float>::twoPi;
-        p.rotationSpeed = random.nextFloatRange (-0.1f, 0.1f) * vibeFactor;
+        p.rotationSpeed = (-0.1f + (random.nextFloat() * 0.2f)) * vibeFactor; // Range -0.1f to 0.1f, scaled by vibe
         p.isUnicorn = (random.nextFloat() > 0.4f); // 60% unicorns, 40% custom math stars!
 
         particles.push_back (p);
@@ -154,7 +157,6 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         }
         else
         {
-            // FIX: Using correct juce::Path::quadraticTo method names here!
             float starSize = 15.0f * p.scale;
             g.setColour (juce::Colours::cyan.interpolatedWith (juce::Colour (0xFFFF007F), random.nextFloat()));
             
