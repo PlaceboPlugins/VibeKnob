@@ -86,8 +86,8 @@ void PamplejuceAudioProcessorEditor::timerCallback()
         p.speedX = -1.2f + (random.nextFloat() * 2.4f); 
         p.speedY = (-2.5f + (random.nextFloat() * 1.5f)) * (1.0f + vibeFactor * 0.8f); 
         
-        // 📈 DYNAMIC INCREMENTAL MATH FOR SIZE
-        float baseScale = 0.1f + (vibeFactor * 0.35f); 
+        // 📉 TUNED SIZE MATH: Starts much smaller (0.04f base) and scales smoothly up without overflowing!
+        float baseScale = 0.04f + (vibeFactor * 0.16f); 
         p.scale = baseScale * (0.85f + (random.nextFloat() * 0.3f));
         
         p.rotation = random.nextFloat() * juce::MathConstants<float>::twoPi;
@@ -165,6 +165,7 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 
         if (p.isUnicorn && unicornImg.isValid())
         {
+            g.setOpacity (1.0f); // Force solid asset colors
             float imgW = static_cast<float>(unicornImg.getWidth()) * p.scale;
             float imgH = static_cast<float>(unicornImg.getHeight()) * p.scale;
             g.drawImageWithin (unicornImg, 
@@ -174,7 +175,8 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         }
         else
         {
-            float starSize = 12.0f * p.scale;
+            g.setOpacity (1.0f); // Reset brush opacity context
+            float starSize = 10.0f * p.scale;
             g.setColour (juce::Colours::cyan.interpolatedWith (juce::Colour (0xFFFF007F), random.nextFloat()));
             
             juce::Path star;
@@ -191,13 +193,13 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         g.restoreState();
     }
     
-// 🎨 CONTRAST BACKDROP: Solid black "tape" look
+    // 🎨 CONTRAST BACKDROP: Solid black "tape" look
     g.setColour (juce::Colours::black);
     
-    // Top Title Background Box - Completely square corners
+    // Top Title Background Box
     g.fillRect (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f));
     
-    // Bottom Quote Strip - Only boxes the quoteLabel at the bottom, leaving the knob center clean!
+    // Bottom Quote Strip
     g.fillRect (quoteLabel.getBounds().toFloat().expanded (20.0f, 6.0f));
 }
 
@@ -205,13 +207,9 @@ void PamplejuceAudioProcessorEditor::resized()
 {
     titleLabel.setBounds(0, 20, getWidth(), 40);
     
-    // Define the knob's position
     auto knobBounds = juce::Rectangle<int> (getWidth() / 2 - 75, getHeight() / 2 - 75, 150, 150);
     vibeKnob.setBounds (knobBounds);
     
-    // 🎯 Center the percentage label directly inside the middle of the knob!
     vibeDisplayLabel.setBounds (knobBounds.withSizeKeepingCentre (120, 50));
-    
-    // Keep the dynamic quote tape at the very bottom
     quoteLabel.setBounds(0, getHeight() - 38, getWidth(), 26);
 }
