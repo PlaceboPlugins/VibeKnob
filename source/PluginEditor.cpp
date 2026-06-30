@@ -191,15 +191,15 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         g.restoreState();
     }
     
-    // 🎨 CONTRAST BACKDROP: Fixed with .getUnionWith()!
-    g.setColour (juce::Colours::black.withAlpha (0.45f));
+    // 🎨 CONTRAST BACKDROP: Solid black "tape" look
+    g.setColour (juce::Colours::black);
     
-    // Top Title Background Box
-    g.fillRoundedRectangle (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f), 6.0f);
+    // Top Title Background Box - Completely square corners (fillRect)
+    g.fillRect (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f));
     
-    // Bottom Dual-Label Status Background Box
+    // Bottom Dual-Label Status Background Box - Also square!
     auto bottomBarArea = vibeDisplayLabel.getBounds().getUnion (quoteLabel.getBounds()).toFloat();
-    g.fillRoundedRectangle (bottomBarArea.expanded (20.0f, 6.0f), 8.0f);
+    g.fillRect (bottomBarArea.expanded (20.0f, 6.0f));
 }
 
 void PamplejuceAudioProcessorEditor::resized()
