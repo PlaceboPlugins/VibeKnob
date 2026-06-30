@@ -71,6 +71,14 @@ PamplejuceAudioProcessorEditor::~PamplejuceAudioProcessorEditor()
 
 void PamplejuceAudioProcessorEditor::timerCallback()
 {
+    // ⏳ Advance the color wheel phase angle (adjust 0.03f to make it faster or slower!)
+    colorPhase += 0.03f;
+    if (colorPhase > juce::MathConstants<float>::twoPi)
+        colorPhase -= juce::MathConstants<float>::twoPi;
+
+    float vibeFactor = currentVibeValue / 10.0f; 
+
+{
     float vibeFactor = currentVibeValue / 10.0f; 
     vibeFactor = juce::jlimit(0.0f, 1.0f, vibeFactor);
 
@@ -149,11 +157,25 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         g.fillAll (juce::Colours::darkgrey);
     }
 
-    // 2. Draw our signature futuristic neon vibe ring
+   // 2. Draw our signature futuristic neon vibe ring (Now Psychedelic & Beefy!)
     auto center = bounds.getCentre();
     float ringRadius = 90.0f;
-    g.setColour (juce::Colour (0xFF00F5FF).withAlpha (0.1f + (saturation * 0.5f))); 
-    g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 3.0f);
+    
+    // 🌈 CONSTANT HUE CYCLE: Cycle beautifully through the color wheel using our phase angle
+    // We map the phase directly to the Hue parameter (0.0 to 1.0)
+    float hue = colorPhase / juce::MathConstants<float>::twoPi;
+    
+    // Saturation scales up with your vibe knob so it goes from pastel/silver to FULL neon madness!
+    float dynamicSat = 0.3f + (saturation * 0.7f);
+    juce::Colour animatedRingColor = juce::Colour::fromHSV (hue, dynamicSat, 1.0f, 1.0f);
+    
+    // 🔮 LAYER 1: The Outer Glow (Thick, softer line acting as a back-light)
+    g.setColour (animatedRingColor.withAlpha (0.4f));
+    g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 12.0f);
+    
+    // ⚡ LAYER 2: The Core Core Ring (Ultra-sharp, punchy center line)
+    g.setColour (animatedRingColor);
+    g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 5.0f);
 
     // 3. Draw floating particles
     static auto unicornImg = juce::ImageCache::getFromMemory (BinaryData::unicorn_particle_png, BinaryData::unicorn_particle_pngSize);
