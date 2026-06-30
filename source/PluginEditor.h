@@ -5,8 +5,7 @@
 // This tells the compiler "Hey, this class exists, don't panic!"
 class PamplejuceAudioProcessor; 
 
-class PamplejuceAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                        public juce::Slider::Listener
+class PamplejuceAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     explicit PamplejuceAudioProcessorEditor (PamplejuceAudioProcessor&);
@@ -14,7 +13,6 @@ public:
 
     void paint (juce::Graphics&) override;
     void resized() override;
-    void sliderValueChanged (juce::Slider* slider) override;
 
 private:
     juce::Slider vibeKnob;
