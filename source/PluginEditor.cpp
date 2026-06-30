@@ -75,7 +75,6 @@ void PamplejuceAudioProcessorEditor::timerCallback()
     vibeFactor = juce::jlimit(0.0f, 1.0f, vibeFactor);
 
     // 📈 DYNAMIC INCREMENTAL MATH FOR SPAWN RATE
-    // Exponential curve: spawn rate grows steeper as vibe increases
     float spawnChance = 0.02f + (vibeFactor * vibeFactor * 0.45f);
 
     if (vibeFactor > 0.05f && random.nextFloat() < spawnChance)
@@ -88,13 +87,12 @@ void PamplejuceAudioProcessorEditor::timerCallback()
         p.speedY = (-2.5f + (random.nextFloat() * 1.5f)) * (1.0f + vibeFactor * 0.8f); 
         
         // 📈 DYNAMIC INCREMENTAL MATH FOR SIZE
-        // Base scale scales continuously with the knob value
         float baseScale = 0.1f + (vibeFactor * 0.35f); 
         p.scale = baseScale * (0.85f + (random.nextFloat() * 0.3f));
         
         p.rotation = random.nextFloat() * juce::MathConstants<float>::twoPi;
         p.rotationSpeed = (-0.05f + (random.nextFloat() * 0.1f)) * vibeFactor; 
-        p.isUnicorn = (random.nextFloat() > 0.35f); // 65% unicorns, 35% stars
+        p.isUnicorn = (random.nextFloat() > 0.35f); 
 
         particles.push_back (p);
     }
@@ -193,15 +191,14 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         g.restoreState();
     }
     
-    // 🎨 CONTRAST BACKDROP: Draw dark neon shadow glow boxes directly behind text boundaries
-    // This forms a high-contrast barrier so the text stays fully legible against passing particles!
+    // 🎨 CONTRAST BACKDROP: Fixed with .getUnionWith()!
     g.setColour (juce::Colours::black.withAlpha (0.45f));
     
     // Top Title Background Box
     g.fillRoundedRectangle (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f), 6.0f);
     
     // Bottom Dual-Label Status Background Box
-    auto bottomBarArea = vibeDisplayLabel.getBounds().unionWith (quoteLabel.getBounds()).toFloat();
+    auto bottomBarArea = vibeDisplayLabel.getBounds().getUnionWith (quoteLabel.getBounds()).toFloat();
     g.fillRoundedRectangle (bottomBarArea.expanded (20.0f, 6.0f), 8.0f);
 }
 
