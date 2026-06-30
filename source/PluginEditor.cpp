@@ -11,18 +11,31 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     addAndMakeVisible(vibeKnob);
 
     // Modern way to handle knob changes without needing a massive Listener class!
-   vibeKnob.onValueChange = [this]() {
+    vibeKnob.onValueChange = [this]() {
         currentVibeValue = static_cast<float>(vibeKnob.getValue());
         
-        // 1. Convert 0-10 raw value into a 0-100 percentage scale
-        float percentage = currentVibeValue * 10.0f;
+        // 1. Round to nearest integer percentage
+        int roundedPercentage = juce::roundToInt (currentVibeValue * 10.0f);
+
+        // 2. Match the exact HTML quote boundaries
+        juce::String vibeQuote = "";
+        if (roundedPercentage <= 0)       vibeQuote = "\"It's missing something...\"";
+        else if (roundedPercentage <= 20) vibeQuote = "\"Yeah, I think I hear it opening up...\"";
+        else if (roundedPercentage <= 40) vibeQuote = "\"Wow, the analog warmth is coming in now!\"";
+        else if (roundedPercentage <= 60) vibeQuote = "\"The mid-range feels way more transparent!\"";
+        else if (roundedPercentage <= 80) vibeQuote = "\"Turn it up! The upper-harmonics are shimmering!\"";
+        else if (roundedPercentage <= 99) vibeQuote = "\"YES! This is a hit! Don't touch a thing!\"";
+        else                              vibeQuote = "\"MAXIMUM VIBE ACHIEVED 🌈✨ (The master bus is peaking!)\"";
+
+        // Update the display text with both the percentage and the dynamic quote
+        statusLabel.setText ("Vibe Level: " + juce::String (roundedPercentage) + "% | " + vibeQuote, juce::dontSendNotification);
         
-        // 2. Round it to the nearest whole number (no ugly decimals!)
-        int roundedPercentage = juce::roundToInt (percentage);
-        
-        // 3. Update the label with a clean format
-        statusLabel.setText ("Vibe Level: " + juce::String (roundedPercentage) + "%", juce::dontSendNotification);
-        
+        // 3. Update status text color dynamically based on percentage!
+        float saturation = static_cast<float>(roundedPercentage) / 100.0f;
+        // Blend from brilliant electric cyan (0%) to neon hot pink (100%)
+        juce::Colour dynamicTextColor = juce::Colours::cyan.interpolatedWith (juce::Colour (0xFFFF007F), saturation);
+        statusLabel.setColour (juce::Label::textColourId, dynamicTextColor);
+
         repaint();
     };
 
@@ -33,16 +46,15 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     addAndMakeVisible(titleLabel);
 
     // Configure the Status Label
-    statusLabel.setText("Vibe Level: 0%", juce::dontSendNotification); // Clean initial text!
-    statusLabel.setFont(juce::FontOptions("Futura", 16.0f, juce::Font::bold)); // Custom Font & Size!
-    statusLabel.setColour(juce::Label::textColourId, juce::Colours::cyan); // Electric Cyan Text!
+    statusLabel.setText("Vibe Level: 0% | \"It's missing something...\"", juce::dontSendNotification); 
+    statusLabel.setFont(juce::FontOptions("Futura", 14.0f, juce::Font::bold)); 
+    statusLabel.setColour(juce::Label::textColourId, juce::Colours::cyan); 
     statusLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(statusLabel);
 
     setSize (400, 300);
 }
 
-// 👇 INSERT THIS DESTRUCTOR RIGHT HERE 
 PamplejuceAudioProcessorEditor::~PamplejuceAudioProcessorEditor()
 {
 }
@@ -60,33 +72,28 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 
     if (cachedImage.isValid())
     {
-        // Draw the full neon-color version of your background image
-        g.drawImageWithin (cachedImage, 0, 0, getWidth(), getHeight(), 
-                           juce::RectanglePlacement::fillDestination);
-
-        // 3. Create the 0% saturation overlay trick!
-        // If vibe is less than 100%, blend a grayscale overlay on top
-        if (saturation < 1.0f)
+        if (saturation >= 1.0f)
         {
-            // Create a temporary black & white snapshot copy of your image
+            g.drawImageWithin (cachedImage, 0, 0, getWidth(), getHeight(), 
+                               juce::RectanglePlacement::fillDestination);
+        }
+        else
+        {
             auto grayscaleImage = cachedImage.createCopy();
             grayscaleImage.desaturate();
 
-            // The overlay transparency is inverse to the knob position
-            // (e.g., 0% knob = 1.0 opacity grayscale overlay, 100% knob = 0.0 opacity overlay)
-            float grayscaleOpacity = 1.0f - saturation;
-
-            g.setOpacity (grayscaleOpacity);
             g.drawImageWithin (grayscaleImage, 0, 0, getWidth(), getHeight(), 
                                juce::RectanglePlacement::fillDestination);
+
+            g.setOpacity (saturation);
+            g.drawImageWithin (cachedImage, 0, 0, getWidth(), getHeight(), 
+                               juce::RectanglePlacement::fillDestination);
             
-            // Reset opacity back to normal for other text/elements
-            g.setOpacity (1.0f);
+            g.setOpacity (1.0f); 
         }
     }
     else
     {
-        // Fallback safety color if the image fails to load for any reason
         g.fillAll (juce::Colours::darkgrey);
     }
 
@@ -95,13 +102,6 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
     float ringRadius = 90.0f;
     g.setColour (juce::Colour (0xFF00F5FF).withAlpha (0.1f + (saturation * 0.5f))); 
     g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 3.0f);
-
-    // 5. Drop our custom italic watermark text at the bottom
-    g.setColour (juce::Colours::white.withAlpha (0.2f + (saturation * 0.8f)));
-    g.setFont (juce::FontOptions (15.0f, juce::Font::bold | juce::Font::italic));
-    g.drawText ("\"Unicorn power levels are optimal.\" 🦄✨", 
-                0, getHeight() - 30, getWidth(), 25, 
-                juce::Justification::centred);
 }
 
 void PamplejuceAudioProcessorEditor::resized()
