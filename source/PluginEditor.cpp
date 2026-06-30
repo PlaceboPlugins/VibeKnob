@@ -25,7 +25,7 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
         else if (roundedPercentage <= 99) vibeQuote = "\"YES! This is a hit! Don't touch a thing!\"";
         else                              vibeQuote = "\"MAXIMUM VIBE ACHIEVED!! +++ (The master bus is peaking!)\"";
 
-        vibeDisplayLabel.setText ("Vibe Level: " + juce::String (roundedPercentage) + "%", juce::dontSendNotification);
+        vibeDisplayLabel.setText (juce::String (roundedPercentage) + "%", juce::dontSendNotification);
         quoteLabel.setText (vibeQuote, juce::dontSendNotification);
         
         float saturation = currentVibeValue / 10.0f; 
@@ -191,22 +191,27 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         g.restoreState();
     }
     
-    // 🎨 CONTRAST BACKDROP: Solid black "tape" look
+// 🎨 CONTRAST BACKDROP: Solid black "tape" look
     g.setColour (juce::Colours::black);
     
-    // Top Title Background Box - Completely square corners (fillRect)
+    // Top Title Background Box - Completely square corners
     g.fillRect (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f));
     
-    // Bottom Dual-Label Status Background Box - Also square!
-    auto bottomBarArea = vibeDisplayLabel.getBounds().getUnion (quoteLabel.getBounds()).toFloat();
-    g.fillRect (bottomBarArea.expanded (20.0f, 6.0f));
+    // Bottom Quote Strip - Only boxes the quoteLabel at the bottom, leaving the knob center clean!
+    g.fillRect (quoteLabel.getBounds().toFloat().expanded (20.0f, 6.0f));
 }
 
 void PamplejuceAudioProcessorEditor::resized()
 {
     titleLabel.setBounds(0, 20, getWidth(), 40);
-    vibeKnob.setBounds(getWidth() / 2 - 75, getHeight() / 2 - 75, 150, 150);
     
-    vibeDisplayLabel.setBounds(0, getHeight() - 60, getWidth(), 25);
+    // Define the knob's position
+    auto knobBounds = juce::Rectangle<int> (getWidth() / 2 - 75, getHeight() / 2 - 75, 150, 150);
+    vibeKnob.setBounds (knobBounds);
+    
+    // 🎯 Center the percentage label directly inside the middle of the knob!
+    vibeDisplayLabel.setBounds (knobBounds.withSizeKeepingCentre (80, 25));
+    
+    // Keep the dynamic quote tape at the very bottom
     quoteLabel.setBounds(0, getHeight() - 35, getWidth(), 20);
 }
