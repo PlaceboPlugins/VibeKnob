@@ -45,7 +45,7 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     addAndMakeVisible(titleLabel);
 
     // Configure the Vibe Percentage Label (Top Row)
-    vibeDisplayLabel.setText("Vibe Level: 0%", juce::dontSendNotification); 
+    vibeDisplayLabel.setText("0%", juce::dontSendNotification); 
     vibeDisplayLabel.setFont(juce::FontOptions("Futura", 16.0f, juce::Font::bold)); 
     vibeDisplayLabel.setColour(juce::Label::textColourId, juce::Colours::cyan); 
     vibeDisplayLabel.setJustificationType(juce::Justification::centred);
