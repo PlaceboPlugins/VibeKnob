@@ -22,7 +22,7 @@ private:
         float scale = 1.0f;
         float rotation = 0.0f;
         float rotationSpeed = 0.0f;
-        bool isUnicorn = true; // true = image, false = procedural star!
+        bool isUnicorn = true;
     };
 
     void timerCallback() override;
@@ -31,7 +31,10 @@ private:
 
     juce::Slider vibeKnob;
     juce::Label titleLabel;
-    juce::Label statusLabel;
+    
+    // Split into two separate labels for perfect stacking and font control!
+    juce::Label vibeDisplayLabel;
+    juce::Label quoteLabel;
 
     float currentVibeValue = 0.0f;
 
