@@ -23,7 +23,7 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
         else if (roundedPercentage <= 60) vibeQuote = "\"The mid-range feels way more transparent!\"";
         else if (roundedPercentage <= 80) vibeQuote = "\"Turn it up! The upper-harmonics are shimmering!\"";
         else if (roundedPercentage <= 99) vibeQuote = "\"YES! This is a hit! Don't touch a thing!\"";
-        else                              vibeQuote = "\"MAXIMUM VIBE ACHIEVED!! (The master bus is peaking!)\"";
+        else                              vibeQuote = "\"MAXIMUM VIBE ACHIEVED!! +++ (The master bus is peaking!)\"";
 
         statusLabel.setText ("Vibe Level: " + juce::String (roundedPercentage) + "% | " + vibeQuote, juce::dontSendNotification);
         
@@ -105,6 +105,9 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
     float saturation = currentVibeValue / 100.0f;
     saturation = juce::jlimit (0.0f, 1.0f, saturation);
 
+    // Silence the unused field warning safely
+    juce::ignoreUnused (processorRef);
+
     // Draw background layers
     static auto cachedImage = juce::ImageCache::getFromMemory (BinaryData::background_jpg, BinaryData::background_jpgSize);
 
@@ -151,16 +154,16 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         }
         else
         {
-            // PRO-TRICK: Procedural Neon Vector Sparkles! (No images needed!)
+            // FIX: Using correct juce::Path::quadraticTo method names here!
             float starSize = 15.0f * p.scale;
             g.setColour (juce::Colours::cyan.interpolatedWith (juce::Colour (0xFFFF007F), random.nextFloat()));
             
             juce::Path star;
             star.startNewSubPath (p.x, p.y - starSize);
-            star.quadraticToTo (p.x, p.y, p.x + starSize, p.y);
-            star.quadraticToTo (p.x, p.y, p.x, p.y + starSize);
-            star.quadraticToTo (p.x, p.y, p.x - starSize, p.y);
-            star.quadraticToTo (p.x, p.y, p.x, p.y - starSize);
+            star.quadraticTo (p.x, p.y, p.x + starSize, p.y);
+            star.quadraticTo (p.x, p.y, p.x, p.y + starSize);
+            star.quadraticTo (p.x, p.y, p.x - starSize, p.y);
+            star.quadraticTo (p.x, p.y, p.x, p.y - starSize);
             star.closeSubPath();
             
             g.fillPath (star);
