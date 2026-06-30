@@ -14,7 +14,6 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     vibeKnob.onValueChange = [this]() {
         currentVibeValue = static_cast<float>(vibeKnob.getValue());
         
-        // CORRECTION: Since max knob value is 10.0f, multiply by 10 to get 0-100%
         int roundedPercentage = juce::roundToInt (currentVibeValue * 10.0f);
 
         juce::String vibeQuote = "";
@@ -26,17 +25,15 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
         else if (roundedPercentage <= 99) vibeQuote = "\"YES! This is a hit! Don't touch a thing!\"";
         else                              vibeQuote = "\"MAXIMUM VIBE ACHIEVED!! +++ (The master bus is peaking!)\"";
 
-        // Update our stacked labels independently
         vibeDisplayLabel.setText ("Vibe Level: " + juce::String (roundedPercentage) + "%", juce::dontSendNotification);
         quoteLabel.setText (vibeQuote, juce::dontSendNotification);
         
-        // Blend from electric cyan to synthwave pink based on 0.0 to 10.0 scale
         float saturation = currentVibeValue / 10.0f; 
         saturation = juce::jlimit (0.0f, 1.0f, saturation);
         juce::Colour dynamicTextColor = juce::Colours::cyan.interpolatedWith (juce::Colour (0xFFFF007F), saturation);
         
         vibeDisplayLabel.setColour (juce::Label::textColourId, dynamicTextColor);
-        quoteLabel.setColour (juce::Label::textColourId, dynamicTextColor.withAlpha(0.8f)); // slightly softer quote look
+        quoteLabel.setColour (juce::Label::textColourId, dynamicTextColor.withAlpha(0.8f));
 
         repaint();
     };
@@ -54,9 +51,9 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     vibeDisplayLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(vibeDisplayLabel);
 
-    // Configure the Dynamic Quote Label (Bottom Row - Smaller Font)
+    // Configure the Dynamic Quote Label (Bottom Row)
     quoteLabel.setText("\"It's missing something...\"", juce::dontSendNotification); 
-    quoteLabel.setFont(juce::FontOptions("Futura", 12.0f, juce::Font::italic)); // Smaller italic style!
+    quoteLabel.setFont(juce::FontOptions("Futura", 12.0f, juce::Font::italic)); 
     quoteLabel.setColour(juce::Label::textColourId, juce::Colours::cyan.withAlpha(0.8f)); 
     quoteLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(quoteLabel);
@@ -74,24 +71,30 @@ PamplejuceAudioProcessorEditor::~PamplejuceAudioProcessorEditor()
 
 void PamplejuceAudioProcessorEditor::timerCallback()
 {
-    // CORRECTION: Scaling based on the actual 0.0f to 10.0f maximum limits of your knob!
     float vibeFactor = currentVibeValue / 10.0f; 
     vibeFactor = juce::jlimit(0.0f, 1.0f, vibeFactor);
 
-    // Randomly spawn particles based on vibe intensity
-    if (vibeFactor > 0.1f && random.nextFloat() < (vibeFactor * 0.4f))
+    // 📈 DYNAMIC INCREMENTAL MATH FOR SPAWN RATE
+    // Exponential curve: spawn rate grows steeper as vibe increases
+    float spawnChance = 0.02f + (vibeFactor * vibeFactor * 0.45f);
+
+    if (vibeFactor > 0.05f && random.nextFloat() < spawnChance)
     {
         Particle p;
         p.x = random.nextFloat() * static_cast<float>(getWidth());
         p.y = static_cast<float>(getHeight()) + 20.0f; 
         
-        p.speedX = -1.5f + (random.nextFloat() * 3.0f); 
-        p.speedY = (-4.0f + (random.nextFloat() * 3.0f)) * (1.0f + vibeFactor); 
-        p.scale = 0.4f + (random.nextFloat() * 0.6f); 
+        p.speedX = -1.2f + (random.nextFloat() * 2.4f); 
+        p.speedY = (-2.5f + (random.nextFloat() * 1.5f)) * (1.0f + vibeFactor * 0.8f); 
+        
+        // 📈 DYNAMIC INCREMENTAL MATH FOR SIZE
+        // Base scale scales continuously with the knob value
+        float baseScale = 0.1f + (vibeFactor * 0.35f); 
+        p.scale = baseScale * (0.85f + (random.nextFloat() * 0.3f));
         
         p.rotation = random.nextFloat() * juce::MathConstants<float>::twoPi;
-        p.rotationSpeed = (-0.1f + (random.nextFloat() * 0.2f)) * vibeFactor; 
-        p.isUnicorn = (random.nextFloat() > 0.4f); 
+        p.rotationSpeed = (-0.05f + (random.nextFloat() * 0.1f)) * vibeFactor; 
+        p.isUnicorn = (random.nextFloat() > 0.35f); // 65% unicorns, 35% stars
 
         particles.push_back (p);
     }
@@ -118,14 +121,12 @@ void PamplejuceAudioProcessorEditor::timerCallback()
 void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
-    
-    // CORRECTION: Background blending saturation fixed for 0.0 -> 10.0 range!
     float saturation = currentVibeValue / 10.0f;
     saturation = juce::jlimit (0.0f, 1.0f, saturation);
 
     juce::ignoreUnused (processorRef);
 
-    // Draw background layers
+    // 1. Draw background layers
     static auto cachedImage = juce::ImageCache::getFromMemory (BinaryData::background_jpg, BinaryData::background_jpgSize);
 
     if (cachedImage.isValid())
@@ -150,7 +151,13 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         g.fillAll (juce::Colours::darkgrey);
     }
 
-    // DRAW FLOATING PARTICLES RIGHT OVER BACKGROUND
+    // 2. Draw our signature futuristic neon vibe ring
+    auto center = bounds.getCentre();
+    float ringRadius = 90.0f;
+    g.setColour (juce::Colour (0xFF00F5FF).withAlpha (0.1f + (saturation * 0.5f))); 
+    g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 3.0f);
+
+    // 3. Draw floating particles
     static auto unicornImg = juce::ImageCache::getFromMemory (BinaryData::unicorn_particle_png, BinaryData::unicorn_particle_pngSize);
 
     for (const auto& p : particles)
@@ -169,7 +176,7 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         }
         else
         {
-            float starSize = 15.0f * p.scale;
+            float starSize = 12.0f * p.scale;
             g.setColour (juce::Colours::cyan.interpolatedWith (juce::Colour (0xFFFF007F), random.nextFloat()));
             
             juce::Path star;
@@ -185,12 +192,17 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
         
         g.restoreState();
     }
-
-    // Draw our signature futuristic neon vibe ring
-    auto center = bounds.getCentre();
-    float ringRadius = 90.0f;
-    g.setColour (juce::Colour (0xFF00F5FF).withAlpha (0.1f + (saturation * 0.5f))); 
-    g.drawEllipse (center.x - ringRadius, center.y - ringRadius, ringRadius * 2.0f, ringRadius * 2.0f, 3.0f);
+    
+    // 🎨 CONTRAST BACKDROP: Draw dark neon shadow glow boxes directly behind text boundaries
+    // This forms a high-contrast barrier so the text stays fully legible against passing particles!
+    g.setColour (juce::Colours::black.withAlpha (0.45f));
+    
+    // Top Title Background Box
+    g.fillRoundedRectangle (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f), 6.0f);
+    
+    // Bottom Dual-Label Status Background Box
+    auto bottomBarArea = vibeDisplayLabel.getBounds().unionWith (quoteLabel.getBounds()).toFloat();
+    g.fillRoundedRectangle (bottomBarArea.expanded (20.0f, 6.0f), 8.0f);
 }
 
 void PamplejuceAudioProcessorEditor::resized()
@@ -198,7 +210,6 @@ void PamplejuceAudioProcessorEditor::resized()
     titleLabel.setBounds(0, 20, getWidth(), 40);
     vibeKnob.setBounds(getWidth() / 2 - 75, getHeight() / 2 - 75, 150, 150);
     
-    // Position labels layout vertically at the bottom
     vibeDisplayLabel.setBounds(0, getHeight() - 60, getWidth(), 25);
     quoteLabel.setBounds(0, getHeight() - 35, getWidth(), 20);
 }
