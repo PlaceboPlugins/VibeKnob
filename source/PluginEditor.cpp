@@ -11,9 +11,18 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     addAndMakeVisible(vibeKnob);
 
     // Modern way to handle knob changes without needing a massive Listener class!
-    vibeKnob.onValueChange = [this]() {
+   vibeKnob.onValueChange = [this]() {
         currentVibeValue = static_cast<float>(vibeKnob.getValue());
-        statusLabel.setText("Vibe Level: " + juce::String(currentVibeValue), juce::dontSendNotification);
+        
+        // 1. Convert 0-10 raw value into a 0-100 percentage scale
+        float percentage = currentVibeValue * 10.0f;
+        
+        // 2. Round it to the nearest whole number (no ugly decimals!)
+        int roundedPercentage = juce::roundToInt (percentage);
+        
+        // 3. Update the label with a clean format
+        statusLabel.setText ("Vibe Level: " + juce::String (roundedPercentage) + "%", juce::dontSendNotification);
+        
         repaint();
     };
 
@@ -24,7 +33,9 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     addAndMakeVisible(titleLabel);
 
     // Configure the Status Label
-    statusLabel.setText("Vibe Level: 0.0", juce::dontSendNotification);
+    statusLabel.setText("Vibe Level: 0%", juce::dontSendNotification); // Clean initial text!
+    statusLabel.setFont(juce::FontOptions("Futura", 16.0f, juce::Font::bold)); // Custom Font & Size!
+    statusLabel.setColour(juce::Label::textColourId, juce::Colours::cyan); // Electric Cyan Text!
     statusLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(statusLabel);
 
