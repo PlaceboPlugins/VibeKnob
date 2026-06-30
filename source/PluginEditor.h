@@ -13,6 +13,10 @@ public:
     void resized() override;
 
 private:
+
+    // ... your other variables ...
+    float colorPhase = 0.0f; // 🌈 Track our animated rainbow cycle phase
+
     struct Particle
     {
         float x = 0.0f;
@@ -40,6 +44,7 @@ private:
 
     std::vector<Particle> particles;
     juce::Random random;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PamplejuceAudioProcessorEditor)
 };
