@@ -29,6 +29,11 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
     setSize (400, 300);
 }
 
+// 👇 INSERT THIS DESTRUCTOR RIGHT HERE 
+PamplejuceAudioProcessorEditor::~PamplejuceAudioProcessorEditor()
+{
+}
+
 void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::darkgrey);
