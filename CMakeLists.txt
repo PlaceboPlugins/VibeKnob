@@ -143,9 +143,17 @@ target_compile_definitions(SharedCode
 # See https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md#juce_add_module
 # However, with Pamplejuce, you'll link modules to SharedCode with INTERFACE visibility
 # This allows the JUCE plugin targets and the Tests target to link against it
+
+# --- BAKE THE BACKGROUND IMAGE INTO BINARY DATA ---
+juce_add_binary_data(CustomBackgroundData
+    SOURCES
+        assets/images/background.jpg
+)
+
 target_link_libraries(SharedCode
     INTERFACE
     Assets
+    CustomBackgroundData
     melatonin_inspector
     juce_audio_utils
     juce_audio_processors
