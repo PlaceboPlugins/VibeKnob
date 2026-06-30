@@ -19,9 +19,9 @@
    });
 
  */
-[[maybe_unused]] static void runWithinPluginEditor (const std::function<void (PluginProcessor& plugin)>& testCode)
+[[maybe_unused]] static void runWithinPluginEditor (const std::function<void (PamplejuceAudioProcessor& plugin)>& testCode)
 {
-    PluginProcessor plugin;
+    PamplejuceAudioProcessor plugin;
     const auto editor = plugin.createEditorIfNeeded();
 
     testCode (plugin);
