@@ -31,7 +31,7 @@ PamplejuceAudioProcessorEditor::PamplejuceAudioProcessorEditor (PamplejuceAudioP
 
 void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::darkGrey);
+    g.fillAll (juce::Colours::darkgrey);
 }
 
 void PamplejuceAudioProcessorEditor::resized()
