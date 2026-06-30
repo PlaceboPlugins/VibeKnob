@@ -148,6 +148,7 @@ target_compile_definitions(SharedCode
 juce_add_binary_data(CustomBackgroundData
     SOURCES
         assets/images/background.jpg
+        assets/unicorn_particle.png
 )
 
 target_link_libraries(SharedCode
