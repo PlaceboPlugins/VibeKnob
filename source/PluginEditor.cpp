@@ -198,7 +198,7 @@ void PamplejuceAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillRoundedRectangle (titleLabel.getBounds().toFloat().withSizeKeepingCentre (220.0f, 32.0f), 6.0f);
     
     // Bottom Dual-Label Status Background Box
-    auto bottomBarArea = vibeDisplayLabel.getBounds().getUnionWith (quoteLabel.getBounds()).toFloat();
+    auto bottomBarArea = vibeDisplayLabel.getBounds().getUnion (quoteLabel.getBounds()).toFloat();
     g.fillRoundedRectangle (bottomBarArea.expanded (20.0f, 6.0f), 8.0f);
 }
 
