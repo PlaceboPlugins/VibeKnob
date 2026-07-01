@@ -79,7 +79,7 @@ void PamplejuceAudioProcessorEditor::timerCallback()
     float vibeFactor = currentVibeValue / 10.0f; 
 
 {
-    float vibeFactor = currentVibeValue / 10.0f; 
+    vibeFactor = currentVibeValue / 10.0f; 
     vibeFactor = juce::jlimit(0.0f, 1.0f, vibeFactor);
 
     // 📈 DYNAMIC INCREMENTAL MATH FOR SPAWN RATE
@@ -114,6 +114,7 @@ void PamplejuceAudioProcessorEditor::timerCallback()
     }
 
     // Garbage Collection
+    
     particles.erase (
         std::remove_if (particles.begin(), particles.end(), 
             [](const Particle& p) { return p.y < -50.0f; }), 
